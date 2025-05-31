@@ -1,0 +1,2 @@
+J:/ecommerce_app/ecommerce_app_udemy_course/android/app/.cxx/Debug/6p22mj4a/armeabi-v7a/CMakeFiles/edit_cache.dir
+J:/ecommerce_app/ecommerce_app_udemy_course/android/app/.cxx/Debug/6p22mj4a/armeabi-v7a/CMakeFiles/rebuild_cache.dir
