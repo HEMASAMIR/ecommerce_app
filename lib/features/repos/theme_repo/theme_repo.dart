@@ -2,6 +2,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeRepository {
+  //KEY OF THEMS
   static const _key = 'isDarkMode';
 
   Future<void> saveTheme(bool isDark) async {
