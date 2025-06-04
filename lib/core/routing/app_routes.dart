@@ -7,7 +7,7 @@ class AppRoutes {
 
   static const String productScreen = '/productScreen';
   static const String addressScreen = '/addressScreen';
-  static const String splaschScreen = '/splachScreen';
+  static const String splashScreen = '/splashScreen';
   static const String favouriteScreen = '/favouriteScreen';
   static const String productDetails = '/productDetails';
 

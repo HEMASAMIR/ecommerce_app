@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:ecommerce_app/core/routing/app_routes.dart';
 import 'package:ecommerce_app/core/utils/toast.dart';
 import 'package:ecommerce_app/core/widgets/custom_text_field.dart';
@@ -27,12 +28,33 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCat = 'All';
 
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       context.read<CategoriesCubit>().fetchCat();
       context.read<ProductsCubit>().fetchProducts();
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      if (query.length >= 2) {
+        context.read<ProductsCubit>().searchProducts(query);
+      } else {
+        context.read<ProductsCubit>().fetchProducts();
+      }
     });
   }
 
@@ -46,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: HeightSpace(28)),
+          const SliverToBoxAdapter(child: HeightSpace(28)),
           SliverToBoxAdapter(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -61,23 +83,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     final isDark = themeMode == ThemeMode.dark;
                     return IconButton(
                       icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-                      onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+                      onPressed: () =>
+                          context.read<ThemeCubit>().toggleTheme(),
                     );
                   },
                 ),
               ],
             ),
           ),
-          SliverToBoxAdapter(child: HeightSpace(16)),
+          const SliverToBoxAdapter(child: HeightSpace(16)),
           SliverToBoxAdapter(
             child: Row(
               children: [
                 CustomTextField(
+                  controller: _searchController,
                   width: 270.w,
                   hintText: "Search For Clothes",
-                  onChanged: (value) {
-                    context.read<ProductsCubit>().searchProducts(value);
-                  },
+                  onChanged: _onSearchChanged,
                   textColor: textColor,
                   fillColor: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                 ),
@@ -94,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          SliverToBoxAdapter(child: HeightSpace(16)),
+          const SliverToBoxAdapter(child: HeightSpace(16)),
 
           /// التصنيفات
           BlocBuilder<CategoriesCubit, CategoriesState>(
@@ -125,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () {
                             setState(() {
                               selectedCat = cat;
+                              _searchController.clear(); // امسح البحث لما أغير التصنيف
                             });
                             if (selectedCat == 'All') {
                               context.read<ProductsCubit>().fetchProducts();
@@ -145,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
 
-          SliverToBoxAdapter(child: HeightSpace(16)),
+          const SliverToBoxAdapter(child: HeightSpace(16)),
 
           /// المنتجات
           BlocBuilder<ProductsCubit, ProductsState>(
@@ -174,49 +197,62 @@ class _HomeScreenState extends State<HomeScreen> {
                   favs = favsState.favs;
                 }
 
+                if (products.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Text("No products found.",
+                          style: TextStyle(color: textColor)),
+                    ),
+                  );
+                }
+
                 return SliverPadding(
                   padding: EdgeInsets.only(bottom: 40.h),
-                  sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = products[index];
-                        bool isFav = favs.any((fav) =>
-                            fav['id'].toString() == product.id.toString());
+                  sliver: AnimationLimiter(
+                    child: SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final product = products[index];
+                          bool isFav = favs.any((fav) =>
+                              fav['id'].toString() ==
+                              product.id.toString());
 
-                        return AnimationConfiguration.staggeredList(
-                          position: index,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            child: FadeInAnimation(
-                              child: ProductItemWidget(
-                                image: product.image.toString(),
-                                title: product.title.toString(),
-                                price: product.price.toString(),
-                                isFav: isFav,
-                                onTap: () {
-                                  context.push(AppRoutes.productScreen,
-                                      extra: product);
-                                },
-                                onFavTap: () async {
-                                  final isAdded = await context
-                                      .read<FavouriteCubit>()
-                                      .toggleFavorite(product.toJson());
-                                  showFavoriteToast(isAdded);
-                                  MainScreen.goToTab(
-                                      context, 2); // 2 هو index تبويب FavScreen
-                                },
+                          return AnimationConfiguration.staggeredGrid(
+                            position: index,
+                            columnCount: 2,
+                            duration: const Duration(milliseconds: 375),
+                            child: ScaleAnimation(
+                              child: FadeInAnimation(
+                                child: ProductItemWidget(
+                                  image: product.image.toString(),
+                                  title: product.title.toString(),
+                                  price: product.price.toString(),
+                                  isFav: isFav,
+                                  onTap: () {
+                                    context.push(AppRoutes.productScreen,
+                                        extra: product);
+                                  },
+                                  onFavTap: () async {
+                                    final isAdded = await context
+                                        .read<FavouriteCubit>()
+                                        .toggleFavorite(product.toJson());
+                                    showFavoriteToast(isAdded);
+                                    MainScreen.goToTab(context,
+                                        2); // 2 هو index تبويب FavScreen
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                      childCount: products.length,
-                    ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: .62,
-                      mainAxisSpacing: 8.sp,
-                      crossAxisSpacing: 16.sp,
+                          );
+                        },
+                        childCount: products.length,
+                      ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: .62,
+                        mainAxisSpacing: 8.sp,
+                        crossAxisSpacing: 16.sp,
+                      ),
                     ),
                   ),
                 );
@@ -229,53 +265,55 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
 
-Widget _buildShimmerGrid(BuildContext context) {
-  double screenHeight = MediaQuery.of(context).size.height;
-  double itemHeight = 260.h;
-  int rowCount = (screenHeight / itemHeight).ceil();
-  int itemCount = rowCount * 2;
+  Widget _buildShimmerGrid(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double itemHeight = 260.h;
+    int rowCount = (screenHeight / itemHeight).ceil();
+    int itemCount = rowCount * 2;
 
-  return SliverGrid(
-    delegate: SliverChildBuilderDelegate(
-      (context, index) {
-        return Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            padding: EdgeInsets.all(8.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 120.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10.r),
+    return SliverGrid(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              padding: EdgeInsets.all(8.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 120.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Container(height: 12.h, width: 80.w, color: Colors.grey[300]),
-                const SizedBox(height: 8),
-                Container(height: 12.h, width: 50.w, color: Colors.grey[300]),
-              ],
+                  const SizedBox(height: 12),
+                  Container(
+                      height: 12.h, width: 80.w, color: Colors.grey[300]),
+                  const SizedBox(height: 8),
+                  Container(
+                      height: 12.h, width: 50.w, color: Colors.grey[300]),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-      childCount: itemCount,
-    ),
-    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      childAspectRatio: .69,
-      mainAxisSpacing: 8.sp,
-      crossAxisSpacing: 16.sp,
-    ),
-  );
+          );
+        },
+        childCount: itemCount,
+      ),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: .69,
+        mainAxisSpacing: 8.sp,
+        crossAxisSpacing: 16.sp,
+      ),
+    );
+  }
 }

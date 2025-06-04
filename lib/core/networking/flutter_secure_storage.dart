@@ -1,28 +1,29 @@
+import 'dart:developer';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class StorageHelper {
   static const storage = FlutterSecureStorage(
-      aOptions: AndroidOptions(
-    encryptedSharedPreferences: true,
-  ));
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+  );
 
-  // Make the methods static
   static Future<void> saveToken(String token) async {
-    await storage.write(
-      key: "token",
-      value: token,
-    );
+    await storage.write(key: "token", value: token);
   }
 
   static Future<String> getToken() async {
-    return await storage.read(key: "token") ?? "";
+    final token = await storage.read(key: 'token');
+    log('From StorageHelper => token: $token');
+    return token ?? '';
   }
 
   static Future<void> removeToken() async {
     await storage.delete(key: "token");
+    log('Token removed');
   }
 
-  // ✅ حفظ حالة إنهاء الـ OnBoarding
   static Future<void> setOnBoardingDone() async {
     await storage.write(key: "onBoardingDone", value: "true");
   }
@@ -32,7 +33,8 @@ class StorageHelper {
     return value == "true";
   }
 
-  static Future<void> removeOnBoardingFlag() async {
+  static Future<void> removeOnBoardingDone() async {
     await storage.delete(key: "onBoardingDone");
+    log('OnBoarding flag removed');
   }
 }

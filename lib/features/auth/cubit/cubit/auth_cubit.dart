@@ -1,33 +1,34 @@
 import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
-import 'package:ecommerce_app/core/networking/flutter_secure_storage.dart';
 import 'package:ecommerce_app/features/auth/auth_repo/auth_repo.dart';
 import 'package:ecommerce_app/features/auth/models/login_model/login_model.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this._authRepo) : super(AuthInitial());
   final AuthRepo _authRepo;
-  void login(
-      {required String username,
-      required String password,
-      required context}) async {
+  void login({
+    required String username,
+    required String password,
+    required BuildContext context,
+  }) async {
     emit(LoadingToLoginState());
-    final Either<String, LoginModel> res = await _authRepo.login(
-        userName: username, password: password, context: context);
+
+    final res = await _authRepo.login(
+      userName: username,
+      password: password,
+    );
 
     res.fold(
-      (l) {
-        emit(ErrorToLoginState(msg: l)); // حالة الفشل
+      (errorMsg) {
+        emit(ErrorToLoginState(msg: errorMsg));
       },
-      (r) {
-        // حالة النجاح مع إضافة الرسالة
-        String successMessage = "تم تسجيل الدخول بنجاح!";
+      (loginModel) {
         emit(SuccessToLoginState(
-            loginModel: r, msg: successMessage)); // أضف الرسالة هنا
+          loginModel: loginModel,
+          msg: "تم تسجيل الدخول بنجاح!",
+        ));
       },
     );
   }

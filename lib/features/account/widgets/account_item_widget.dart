@@ -1,4 +1,3 @@
-import 'package:ecommerce_app/core/styling/app_styles.dart';
 import 'package:ecommerce_app/core/widgets/spacing_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,8 +6,13 @@ class AccountItemWidget extends StatelessWidget {
   final String? title;
   final String? iconPath;
   final VoidCallback? onTap;
-  const AccountItemWidget(
-      {super.key, this.title, required this.iconPath, required this.onTap});
+
+  const AccountItemWidget({
+    super.key,
+    this.title,
+    required this.iconPath,
+    required this.onTap, Color? textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,18 +24,17 @@ class AccountItemWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                iconPath == null
-                    ? const SizedBox.shrink()
-                    : Image.asset(
-                        iconPath!,
-                        width: 25.sp,
-                        height: 25.sp,
-                      ),
+                if (iconPath != null)
+                  Image.asset(
+                    iconPath!,
+                    width: 25.sp,
+                    height: 25.sp,
+                    color: Theme.of(context).iconTheme.color, // ✅ دعم الثيم
+                  ),
                 const WidthSpace(8),
                 Text(
                   title ?? "",
-                  style:
-                      AppStyles.subtitlesStyles.copyWith(color: Colors.black),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 )
               ],
             ),
@@ -39,7 +42,7 @@ class AccountItemWidget extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               size: 16.sp,
-              color: Colors.grey,
+              color: Theme.of(context).iconTheme.color,
             )
           ],
         ),

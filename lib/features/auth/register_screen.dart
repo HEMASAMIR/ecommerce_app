@@ -21,9 +21,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   late TextEditingController password;
   late TextEditingController confirmPassword;
 
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     username = TextEditingController();
     password = TextEditingController();
@@ -43,33 +45,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const HeightSpace(28),
-                SizedBox(
-                  width: 335.w,
-                  child: Text(
-                    "Create an account",
-                    style: AppStyles.primaryHeadLinesStyle,
-                  ),
-                ),
+                Text("Create an account",
+                    style: AppStyles.primaryHeadLinesStyle),
                 const HeightSpace(8),
-                SizedBox(
-                  width: 335.w,
-                  child: Text(
-                    "Let’s create your account.",
-                    style: AppStyles.grey12MediumStyle,
-                  ),
-                ),
+                Text("Let’s create your account.",
+                    style: AppStyles.grey12MediumStyle),
                 const HeightSpace(32),
                 Text("Full Name", style: AppStyles.black16w500Style),
                 const HeightSpace(8),
                 CustomTextField(
                   controller: fullname,
                   hintText: "Enter Your Full Name",
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Enter Your Full Name";
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter Your Full Name" : null,
                 ),
                 const HeightSpace(16),
                 Text("User Name", style: AppStyles.black16w500Style),
@@ -77,12 +65,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CustomTextField(
                   controller: username,
                   hintText: "Enter Your User Name",
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Enter Your User Name";
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter Your User Name" : null,
                 ),
                 const HeightSpace(16),
                 Text("Password", style: AppStyles.black16w500Style),
@@ -90,15 +74,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CustomTextField(
                   hintText: "Enter Your Password",
                   controller: password,
-                  suffixIcon: Icon(
-                    Icons.remove_red_eye,
-                    color: AppColors.greyColor,
-                    size: 20.sp,
+                  isPassword: _obscurePassword,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: AppColors.greyColor,
+                      size: 20.sp,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
                   validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Enter Your Password";
-                    }
+                    if (value!.isEmpty) return "Enter Your Password";
                     if (value.length < 8) {
                       return "Password must be at least 8 characters";
                     }
@@ -109,46 +101,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Text("Confirm Password", style: AppStyles.black16w500Style),
                 const HeightSpace(8),
                 CustomTextField(
-                  hintText: "Enter Your Password",
-                  controller: password,
-                  suffixIcon: Icon(
-                    Icons.remove_red_eye,
-                    color: AppColors.greyColor,
-                    size: 20.sp,
+                  hintText: "Confirm Your Password",
+                  controller: confirmPassword,
+                  isPassword: _obscureConfirmPassword,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: AppColors.greyColor,
+                      size: 20.sp,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
                   ),
                   validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Enter Your Password";
-                    }
-                    if (value.length < 8) {
-                      return "Password must be at least 8 characters";
-                    }
+                    if (value!.isEmpty) return "Enter Your Password";
+                    if (value != password.text) return "Passwords do not match";
                     return null;
                   },
                 ),
                 const HeightSpace(55),
                 PrimayButtonWidget(
                   buttonText: "Create Account",
-                  onPress: () {
-                    //    if (formKey.currentState!.validate()) {
-                    //   GoRouter.of(context).pushNamed(AppRoutes.verifyOtpScreen);
-                    //  }
-                  },
+                  onPress: () {},
                 ),
                 const Spacer(),
                 Center(
                   child: InkWell(
-                    onTap: () {
-                      context.pop();
-                    },
+                    onTap: () => context.pop(),
                     child: RichText(
                       text: TextSpan(
-                        text: "Do you have account? ",
+                        text: "Already have your account? ",
                         style: AppStyles.black16w500Style
                             .copyWith(color: AppColors.secondaryColor),
                         children: [
                           TextSpan(
-                              text: "Login", style: AppStyles.black15BoldStyle)
+                              text: "Login", style: AppStyles.black15BoldStyle),
                         ],
                       ),
                     ),

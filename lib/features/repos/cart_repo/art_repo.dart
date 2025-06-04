@@ -11,7 +11,7 @@ class CartRepo {
   Future<Either<String, CartModel>> getUserCart() async {
     try {
       final response = await _dioHelper.getRequest(
-        endPoint: ApiEndpoints.carts + "/user/3",
+        endPoint: "${ApiEndpoints.carts}/user/3",
       );
 
       if (response.statusCode == 200 &&
@@ -21,7 +21,7 @@ class CartRepo {
         CartModel cart = CartModel.fromJson(response.data[0]);
         return Right(cart);
       } else {
-        return Left(
+        return const Left(
             "Failed to add cart: Unexpected response format or empty list.");
       }
     } catch (e) {
@@ -37,7 +37,7 @@ class CartRepo {
       required int quantity}) async {
     try {
       final response = await _dioHelper.putRequest(
-        endPoint: ApiEndpoints.carts + "/3",
+        endPoint: "${ApiEndpoints.carts}/3",
         data: {
           "userId": 3,
           "date": date,

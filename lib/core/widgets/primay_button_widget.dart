@@ -49,7 +49,7 @@ class PrimayButtonWidget extends StatelessWidget {
               ? SizedBox(
                   width: 30.w,
                   height: 30.h,
-                  child: Center(
+                  child: const Center(
                       child: CircularProgressIndicator(
                     color: Colors.white,
                   )),

@@ -73,10 +73,14 @@ class _MainScreenState extends State<MainScreen> {
           body: screens[currentIndex],
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
-            unselectedItemColor: Colors.grey,
+            backgroundColor:
+                Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+            selectedIconTheme: IconThemeData(color: AppColors.primaryColor),
+            unselectedItemColor:
+                Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+            selectedItemColor:
+                Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
             elevation: 1,
-            selectedItemColor: AppColors.primaryColor,
             currentIndex: currentIndex,
             onTap: setTab,
             items: [

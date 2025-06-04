@@ -11,7 +11,7 @@ part 'cart_state.dart';
 class CartCubit extends Cubit<CartState> {
   CartCubit(this._cartRepo) : super(CartInitial());
 
-  CartRepo _cartRepo;
+  final CartRepo _cartRepo;
   List<ProductModel> cartItems = [];
   getCart() async {
     emit(CartLoading());

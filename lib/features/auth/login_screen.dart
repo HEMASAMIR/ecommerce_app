@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:ecommerce_app/core/networking/flutter_secure_storage.dart';
 import 'package:ecommerce_app/core/routing/app_routes.dart';
@@ -96,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return "Enter Your Password";
                       }
                       if (value.length < 6) {
-                        return "Password must be at least 8 characters";
+                        return "Password must be at least 6 characters";
                       }
                       return null;
                     },
@@ -117,9 +119,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
 
                         context.goNamed(AppRoutes.mainScreen);
-                      } else if (state is ErrorToLoginState) {
+                      }
+                      if (state is ErrorToLoginState) {
+                        final errorMessage = state.msg.isNotEmpty
+                            ? state.msg
+                            : "Unknown error occurred";
+                        log('Error: $errorMessage');
+
                         showAnimatedSnackDialog(
-                          message: state.msg,
+                          message: 'Error: $errorMessage',
                           type: AnimatedSnackBarType.error,
                           context: context,
                         );

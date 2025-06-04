@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ecommerce_app/core/networking/flutter_secure_storage.dart';
 import 'package:ecommerce_app/core/routing/app_routes.dart';
 import 'package:ecommerce_app/core/styling/app_assets.dart';
@@ -21,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2))
+        AnimationController(vsync: this, duration: const Duration(seconds: 4))
           ..forward();
     animation = CurvedAnimation(
       parent: animationController,
@@ -30,22 +32,41 @@ class _SplashScreenState extends State<SplashScreen>
     _navigateAfterSplash();
   }
 
-  Future<void> _navigateAfterSplash() async {
-    await Future.delayed(const Duration(seconds: 2));
+//   Future<void> _navigateAfterSplash() async {
+//   await Future.delayed(const Duration(seconds: 4));
 
-    final token = await StorageHelper.getToken();
-    final isOnBoardingDone = await StorageHelper.isOnBoardingDone();
+//   final token = await StorageHelper.getToken();
+//   final isOnBoardingDone = await StorageHelper.isOnBoardingDone();
 
-    if (token.isEmpty) {
-      if (!isOnBoardingDone) {
-        context.goNamed(AppRoutes.onBoardingScreen);
-      } else {
-        context.goNamed(AppRoutes.loginScreen);
-      }
-    } else {
-      context.goNamed(AppRoutes.mainScreen);
-    }
+//   log('Token: $token');
+//   log('OnBoarding Done: $isOnBoardingDone');
+
+//   if (token.isNotEmpty) {
+//     context.goNamed(AppRoutes.mainScreen);
+//   } else if (!isOnBoardingDone) {
+//     context.goNamed(AppRoutes.onBoardingScreen);
+//   } else {
+//     context.goNamed(AppRoutes.loginScreen);
+//   }
+// }
+Future<void> _navigateAfterSplash() async {
+  await Future.delayed(const Duration(seconds: 4));
+
+  final token = await StorageHelper.getToken();
+  final isOnBoardingDone = await StorageHelper.isOnBoardingDone();
+
+  log('Token: $token');
+  log('OnBoarding Done: $isOnBoardingDone');
+
+  if (!isOnBoardingDone) {
+    context.goNamed(AppRoutes.onBoardingScreen);
+  } else if (token.isNotEmpty) {
+    context.goNamed(AppRoutes.mainScreen);
+  } else {
+    context.goNamed(AppRoutes.loginScreen);
   }
+}
+
 
   @override
   void dispose() {
@@ -55,6 +76,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    log('SplashScreen built');
     return Scaffold(
       body: Center(
           child: ScaleTransition(

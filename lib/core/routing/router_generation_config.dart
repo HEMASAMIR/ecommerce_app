@@ -6,6 +6,7 @@ import 'package:ecommerce_app/features/auth/cubit/cubit/auth_cubit.dart';
 import 'package:ecommerce_app/features/auth/login_screen.dart';
 import 'package:ecommerce_app/features/auth/on_boarding.dart';
 import 'package:ecommerce_app/features/auth/register_screen.dart';
+import 'package:ecommerce_app/features/auth/splash_screen.dart';
 import 'package:ecommerce_app/features/favourite/cubit/cubit/favourite_cubit.dart';
 import 'package:ecommerce_app/features/favourite/favourite.dart';
 import 'package:ecommerce_app/features/home_screen/cubit/cart_cubit/cart_cubit.dart';
@@ -21,15 +22,11 @@ import 'package:go_router/go_router.dart';
 
 class RouterGenerationConfig {
   static GoRouter goRouter =
-      GoRouter(initialLocation: AppRoutes.mainScreen, routes: [
+      GoRouter(initialLocation: AppRoutes.splashScreen, routes: [
     GoRoute(
-      name: AppRoutes.splaschScreen,
-      path: AppRoutes.splaschScreen,
-      builder: (context, state) => BlocProvider(
-        create: (context) =>
-            AuthCubit(AuthRepo(DioHelper())), // إنشاء AuthCubit
-        child: const LoginScreen(), // شاشة تسجيل الدخول
-      ),
+      name: AppRoutes.splashScreen,
+      path: AppRoutes.splashScreen,
+      builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
       name: AppRoutes.onBoardingScreen,

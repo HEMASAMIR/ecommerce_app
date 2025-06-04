@@ -46,7 +46,7 @@ class _CartScreenState extends State<CartScreen> {
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
           if (state is CartLoading) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
@@ -61,7 +61,7 @@ class _CartScreenState extends State<CartScreen> {
                     const HeightSpace(20),
                     ...state.cart.products!.map((p) {
                       return CartItemWidget(productCart: p);
-                    }).toList(),
+                    }),
                     const HeightSpace(20),
                     TitlePriceWidget(
                       title: "Sub Total",
